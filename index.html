@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Tev piemērotākais vadības stils</title>
+
+<style>
+
+:root{
+    --dark: #283d60;
+    --gold: #b48c5d;
+    --light: #283d60;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family: Arial, sans-serif;
+    background: var(--light);
+    color: var(--dark);
+}
+
+/* ---------- START PAGE ---------- */
+
+.start-screen,
+.quiz-screen,
+.result-screen{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:40px 20px;
+}
+
+.card{
+    background:white;
+    max-width:900px;
+    width:100%;
+    padding:50px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+h1{
+    font-size:42px;
+    margin-bottom:20px;
+    color:var(--dark);
+}
+
+h2{
+    margin-bottom:25px;
+}
+
+p{
+    line-height:1.7;
+    margin-bottom:15px;
+}
+
+.main-btn{
+    margin-top:30px;
+    background:var(--gold);
+    color:white;
+    border:none;
+    padding:16px 35px;
+    border-radius:12px;
+    font-size:18px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.main-btn:hover{
+    transform:translateY(-2px);
+    opacity:0.9;
+}
+
+/* ---------- QUIZ ---------- */
+
+.quiz-screen{
+    display:none;
+}
+
+.progress{
+    margin-bottom:25px;
+    font-weight:bold;
+    color:var(--gold);
+}
+
+.answers{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.answer{
+    background:#f8f4ef;
+    border:2px solid transparent;
+    padding:18px;
+    border-radius:12px;
+    cursor:pointer;
+    transition:0.3s;
+    text-align:left;
+}
+
+.answer:hover{
+    border-color:var(--gold);
+}
+
+.answer.selected{
+    background:var(--gold);
+    color:white;
+}
+
+/* ---------- RESULT ---------- */
+
+.result-screen{
+    display:none;
+}
+
+.result-title{
+    font-size:36px;
+    margin-bottom:20px;
+    color:var(--gold);
+}
+
+.percent-bar{
+    width:100%;
+    height:14px;
+    background:#ddd;
+    border-radius:10px;
+    overflow:hidden;
+    margin:10px 0 25px;
+}
+
+.percent-fill{
+    height:100%;
+    background:var(--gold);
+}
+
+.section-title{
+    margin-top:30px;
+    margin-bottom:10px;
+    color:var(--gold);
+}
+
+/* ---------- ANIMATION ---------- */
+
+.fade{
+    animation:fade 0.4s ease;
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@media(max-width:768px){
+
+    .card{
+        padding:30px 20px;
+    }
+
+    h1{
+        font-size:32px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ================= START PAGE ================= -->
+
+<section class="start-screen" id="startScreen">
+
+    <div class="card fade">
+
+        <h1>Tev piemērotākais vadības stils</h1>
+
+        <p>
+            Mūsdienās veiksmīga vadība prasa ne tikai zināšanas un pieredzi,
+            bet arī spēju efektīvi sadarboties ar cilvēkiem,
+            pieņemt lēmumus un pielāgoties dažādām situācijām.
+        </p>
+
+        <p>
+            Šī testa mērķis ir palīdzēt noteikt,
+            kurš vadības stils tev ir visraksturīgākais —
+            <strong>autoritārais</strong>,
+            <strong>demokrātiskais</strong>
+            vai
+            <strong>liberālais</strong>.
+        </p>
+
+        <p>
+            Testā tiks analizēta tava pieeja:
+        </p>
+
+        <ul style="margin-left:20px; line-height:1.8;">
+            <li>lēmumu pieņemšanai;</li>
+            <li>komandas vadīšanai;</li>
+            <li>konfliktu risināšanai;</li>
+            <li>darbam stresa situācijās.</li>
+        </ul>
+
+        <button class="main-btn" onclick="startQuiz()">
+            Sākt testu
+        </button>
+
+    </div>
+
+</section>
+
+<!-- ================= QUIZ ================= -->
+
+<section class="quiz-screen" id="quizScreen">
+
+    <div class="card fade">
+
+        <div class="progress" id="progress">
+            1 / 20
+        </div>
+
+        <h2 id="question">
+            Jautājums
+        </h2>
+
+        <div class="answers" id="answers"></div>
+
+        <button class="main-btn" onclick="nextQuestion()">
+            Tālāk
+        </button>
+
+    </div>
+
+</section>
+
+<!-- ================= RESULT ================= -->
+
+<section class="result-screen" id="resultScreen">
+
+    <div class="card fade" id="resultContent"></div>
+
+</section>
+
+<script>
+
+/* ================= QUESTIONS ================= */
+
+const questions = [
+
+{
+question:"Pieņemot svarīgus lēmumus, tu:",
+answers:[
+{text:"Konsultējies ar komandu pirms lēmuma pieņemšanas", type:"D"},
+{text:"Pieņem lēmumu patstāvīgi un ātri", type:"A"},
+{text:"Dod priekšroku tam, lai lēmumu pieņem citi", type:"L"}
+]
+},
+
+{
+question:"Kontrolējot komandas darbu, tu:",
+answers:[
+{text:"Stingri uzraugi darba izpildi un rezultātus", type:"A"},
+{text:"Kontrolē tikai nepieciešamības gadījumā", type:"L"},
+{text:"Regulāri komunicē ar komandu un sniedz atbalstu", type:"D"}
+]
+},
+
+{
+question:"Krīzes situācijās tu:",
+answers:[
+{text:"Ātri pārņem kontroli un pieņem stingrus lēmumus", type:"A"},
+{text:"Saglabā mieru un sadarbojies ar komandu", type:"D"},
+{text:"Centies izvairīties no aktīvas iesaistes situācijā", type:"L"}
+]
+},
+
+{
+question:"Vadot komandu, tu:",
+answers:[
+{text:"Veido sadarbību un uzturi labu komunikāciju komandā", type:"D"},
+{text:"Stingri kontrolē darba procesu un rezultātus", type:"A"},
+{text:"Dod komandai lielu brīvību", type:"L"}
+]
+},
+
+{
+question:"Saņemot kritiku no vadības, tu:",
+answers:[
+{text:"Uzklausi kritiku un centies uzlaboties", type:"D"},
+{text:"Asi reaģē un aizstāvi savu viedokli", type:"A"},
+{text:"Pieņem kritiku, bet neko īpaši nemaini", type:"L"}
+]
+},
+
+{
+question:"Runājot par disciplīnu komandā, tu:",
+answers:[
+{text:"Dod komandai lielu brīvību", type:"L"},
+{text:"Stingri kontrolē noteikumu ievērošanu", type:"A"},
+{text:"Uzturi disciplīnu ar cieņu un komunikāciju", type:"D"}
+]
+},
+
+{
+question:"Sadalot pienākumus komandā, tu:",
+answers:[
+{text:"Sadalīšanu apspried kopā ar komandu", type:"D"},
+{text:"Ļauj komandai pašai sadalīt pienākumus", type:"L"},
+{text:"Pats nosaki katra pienākumus", type:"A"}
+]
+},
+
+{
+question:"Dodot uzdevumus darbiniekiem, tu:",
+answers:[
+{text:"Skaidri nosaki, kas jādara", type:"A"},
+{text:"Izskaidro uzdevumu un motivē komandu", type:"D"},
+{text:"Dod vispārīgus norādījumus", type:"L"}
+]
+},
+
+{
+question:"Ja tev trūkst zināšanu lēmuma pieņemšanai, tu:",
+answers:[
+{text:"Konsultējies ar citiem", type:"D"},
+{text:"Pieņem lēmumu patstāvīgi", type:"A"},
+{text:"Gaidi norādījumus", type:"L"}
+]
+},
+
+{
+question:"Kā vadītājs tu sevi raksturotu kā:",
+answers:[
+{text:"Prasīgu, bet taisnīgu", type:"D"},
+{text:"Stingru un prasīgu", type:"A"},
+{text:"Brīvu un mazāk kontrolējošu", type:"L"}
+]
+},
+
+{
+question:"Ja komandā rodas konflikts, tu:",
+answers:[
+{text:"Uzklausi abas puses un meklē kompromisu", type:"D"},
+{text:"Ļauj komandai pašai atrisināt konfliktu", type:"L"},
+{text:"Ātri iejaucies un pats pieņem lēmumu", type:"A"}
+]
+},
+
+{
+question:"Ja darbinieks pieļauj kļūdu, tu:",
+answers:[
+{text:"Palīdzi darbiniekam uzlaboties", type:"D"},
+{text:"Stingri norādi uz kļūdu", type:"A"},
+{text:"Nepievērs īpašu uzmanību", type:"L"}
+]
+},
+
+{
+question:"Ja projekts kavējas, tu:",
+answers:[
+{text:"Meklē risinājumu kopā ar komandu", type:"D"},
+{text:"Uzticies, ka komanda pati atrisinās", type:"L"},
+{text:"Pastiprini kontroli", type:"A"}
+]
+},
+
+{
+question:"Pieņemot pārmaiņas uzņēmumā, tu:",
+answers:[
+{text:"Nosaki skaidrus noteikumus", type:"A"},
+{text:"Ļauj darbiniekiem pašiem pielāgoties", type:"L"},
+{text:"Iesaisti komandu pārmaiņu procesā", type:"D"}
+]
+},
+
+{
+question:"Vadot sapulci, tu:",
+answers:[
+{text:"Pats vadi diskusiju", type:"A"},
+{text:"Dod iespēju visiem izteikties", type:"D"},
+{text:"Ļauj sapulcei noritēt brīvi", type:"L"}
+]
+},
+
+{
+question:"Uzņēmumā parādās spēcīgs konkurents.",
+answers:[
+{text:"Apspriežu situāciju ar komandu", type:"D"},
+{text:"Pieņemu stingrus lēmumus", type:"A"},
+{text:"Pielāgojos pakāpeniski", type:"L"}
+]
+},
+
+{
+question:"Uzņēmums nonāk finanšu grūtībās.",
+answers:[
+{text:"Ieviešu taupības režīmu", type:"A"},
+{text:"Meklēju risinājumus kopā", type:"D"},
+{text:"Sagaidu situācijas attīstību", type:"L"}
+]
+},
+
+{
+question:"Komanda zaudē motivāciju.",
+answers:[
+{text:"Pieprasu lielāku disciplīnu", type:"A"},
+{text:"Motivēju komandu", type:"D"},
+{text:"Ceru, ka situācija uzlabosies", type:"L"}
+]
+},
+
+{
+question:"Uzņēmumā tiek ieviesta jauna tehnoloģija.",
+answers:[
+{text:"Ļauju katram pašam izlemt", type:"L"},
+{text:"Palīdzu komandai pielāgoties", type:"D"},
+{text:"Nosaku stingrus noteikumus", type:"A"}
+]
+},
+
+{
+question:"Tev jāattīsta uzņēmuma nākotnes vīzija.",
+answers:[
+{text:"Veidoju vīziju kopā ar komandu", type:"D"},
+{text:"Pats nosaku virzienu", type:"A"},
+{text:"Ļauju komandai piedāvāt idejas", type:"L"}
+]
+}
+
+];
+
+/* ================= RESULTS ================= */
+
+const results = {
+
+A:{
+title:"Autoritārais vadības stils",
+description:"Tu esi pārliecināts, disciplinēts un uz rezultātu orientēts vadītājs.",
+strengths:[
+"Ātra lēmumu pieņemšana",
+"Augsta atbildības sajūta",
+"Laba organizētība",
+"Spēja kontrolēt sarežģītas situācijas"
+],
+improve:[
+"Lielāka komandas iesaiste",
+"Elastīgāka komunikācija",
+"Uzticēšanās citu idejām"
+]
+},
+
+D:{
+title:"Demokrātiskais vadības stils",
+description:"Tu novērtē sadarbību, komunikāciju un komandas iesaisti.",
+strengths:[
+"Laba komunikācija",
+"Komandas motivēšana",
+"Sadarbības veicināšana",
+"Pozitīva atmosfēra"
+],
+improve:[
+"Ātrāka lēmumu pieņemšana",
+"Stingrāka kontrole",
+"Pārliecība sarežģītās situācijās"
+]
+},
+
+L:{
+title:"Liberālais vadības stils",
+description:"Tu uzticies komandai un dod cilvēkiem lielu brīvību darbā.",
+strengths:[
+"Uzticēšanās komandai",
+"Radošuma veicināšana",
+"Elastīga pieeja",
+"Draudzīga vide"
+],
+improve:[
+"Lielāka kontrole",
+"Skaidrāka organizācija",
+"Aktīvāka iesaiste"
+]
+}
+
+};
+
+/* ================= VARIABLES ================= */
+
+let currentQuestion = 0;
+let selectedAnswer = null;
+
+let scores = {
+A:0,
+D:0,
+L:0
+};
+
+/* ================= START ================= */
+
+function startQuiz(){
+
+document.getElementById("startScreen").style.display = "none";
+document.getElementById("quizScreen").style.display = "flex";
+
+showQuestion();
+
+}
+
+/* ================= SHOW QUESTION ================= */
+
+function showQuestion(){
+
+selectedAnswer = null;
+
+const q = questions[currentQuestion];
+
+document.getElementById("progress").innerText =
+`${currentQuestion + 1} / ${questions.length}`;
+
+document.getElementById("question").innerText = q.question;
+
+const answersDiv = document.getElementById("answers");
+
+answersDiv.innerHTML = "";
+
+q.answers.forEach(answer => {
+
+const btn = document.createElement("div");
+
+btn.classList.add("answer");
+
+btn.innerText = answer.text;
+
+btn.onclick = () => {
+
+document.querySelectorAll(".answer")
+.forEach(el => el.classList.remove("selected"));
+
+btn.classList.add("selected");
+
+selectedAnswer = answer.type;
+
+};
+
+answersDiv.appendChild(btn);
+
+});
+
+}
+
+/* ================= NEXT QUESTION ================= */
+
+function nextQuestion(){
+
+if(!selectedAnswer){
+
+alert("Lūdzu izvēlies atbildi!");
+return;
+
+}
+
+scores[selectedAnswer]++;
+
+currentQuestion++;
+
+if(currentQuestion < questions.length){
+
+showQuestion();
+
+}else{
+
+showResult();
+
+}
+
+}
+
+/* ================= RESULT ================= */
+
+function showResult(){
+
+document.getElementById("quizScreen").style.display = "none";
+
+document.getElementById("resultScreen").style.display = "flex";
+
+const total = questions.length;
+
+const percentA = Math.round((scores.A / total) * 100);
+const percentD = Math.round((scores.D / total) * 100);
+const percentL = Math.round((scores.L / total) * 100);
+
+let dominant = "A";
+
+if(scores.D > scores[dominant]) dominant = "D";
+if(scores.L > scores[dominant]) dominant = "L";
+
+const result = results[dominant];
+
+document.getElementById("resultContent").innerHTML = `
+
+<h1 class="result-title">${result.title}</h1>
+
+<p>${result.description}</p>
+
+<h2>Rezultāti procentos</h2>
+
+<p>Autoritārais — ${percentA}%</p>
+<div class="percent-bar">
+<div class="percent-fill" style="width:${percentA}%"></div>
+</div>
+
+<p>Demokrātiskais — ${percentD}%</p>
+<div class="percent-bar">
+<div class="percent-fill" style="width:${percentD}%"></div>
+</div>
+
+<p>Liberālais — ${percentL}%</p>
+<div class="percent-bar">
+<div class="percent-fill" style="width:${percentL}%"></div>
+</div>
+
+<h2 class="section-title">Tavas stiprās puses</h2>
+
+<ul>
+${result.strengths.map(item => `<li>${item}</li>`).join("")}
+</ul>
+
+<h2 class="section-title">Kas būtu jāattīsta</h2>
+
+<ul>
+${result.improve.map(item => `<li>${item}</li>`).join("")}
+</ul>
+
+`;
+
+}
+
+</script>
+
+</body>
+</html>
